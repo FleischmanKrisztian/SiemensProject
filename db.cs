@@ -80,7 +80,7 @@ namespace SiemensProject
                     vol.Age = 0;
                 }
 
-            } while (vol.Age < 1);
+            } while (vol.Age < 1);// int  pentru age
             /*Console.WriteLine("Country: ");
             vol.Address.Country = Console.ReadLine();
             Console.WriteLine("City: ");
@@ -90,22 +90,61 @@ namespace SiemensProject
             Console.WriteLine("Number: ");
             vol.Address.Number = Console.ReadLine();
             Console.WriteLine("Gender: ");
-            vol.Gender = Console.ReadLine();
-            Console.WriteLine("Birth Year: ");
-            vol.birthdate.Year = Convert.ToInt16(Console.ReadLine());
-            Console.WriteLine("Birth Month: ");
-            vol.birthdate.Month = Convert.ToInt16(Console.ReadLine());
-            Console.WriteLine("Birth Day: ");
-            vol.birthdate.Day = Convert.ToInt16(Console.ReadLine());
-            Console.WriteLine("Has Driving License? (true/false)");
+            vol.Gender = Console.ReadLine();*/
+            do
+            {
+                try
+                {
+                    vol.birthdate.Year = 0;
+                    Console.WriteLine("Birth Year: ");
+                    vol.birthdate.Year = Convert.ToInt32(Console.ReadLine());
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine("Please enter a Number");
+                    vol.birthdate.Year = 0;
+                }
+
+            } while (vol.birthdate.Year < 1);//int pentru brthyear
+            do
+            {
+                try
+                {
+                    vol.birthdate.Month = 0;
+                    Console.WriteLine("Birth Month: ");
+                    vol.birthdate.Month = Convert.ToInt32(Console.ReadLine());
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine("Please enter a Number");
+                    vol.birthdate.Month = 0;
+                }
+
+            } while (vol.birthdate.Month < 1);//int pentru brthmonth
+            do
+            {
+                try
+                {
+                    vol.birthdate.Day = 0;
+                    Console.WriteLine("Birth Day: ");
+                    vol.birthdate.Day = Convert.ToInt32(Console.ReadLine());
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine("Please enter a Number");
+                    vol.birthdate.Day = 0;
+                }
+
+            } while (vol.birthdate.Day < 1);//int pentru birthday
+           /* Console.WriteLine("Has Driving License? (true/false)"); //trebe facut pentru boolean
             vol.AditionalInfo.HasDrivingLicence = Convert.ToBoolean(Console.ReadLine());
-            Console.WriteLine("Has Car? (true/false)");
+            Console.WriteLine("Has Car? (true/false)");//trebe facut pentru boolean
             vol.AditionalInfo.HasCar = Convert.ToBoolean(Console.ReadLine());
             Console.WriteLine("EmailAddress: : ");
             vol.ContactInformations.MailAdress = Console.ReadLine();
             Console.WriteLine("PhoneNumber: : ");
             vol.ContactInformations.PhoneNumber = Console.ReadLine();
-            Console.WriteLine("HasContract (true/fasle)");
+            Console.WriteLine("HasContract (true/false)");//trebe facut pentru boolean
             vol.Contract.HasContract = Convert.ToBoolean(Console.ReadLine());
             Console.WriteLine("Contract Period in months");
             vol.Contract.ContractPeriod = Convert.ToInt16(Console.ReadLine());
@@ -123,7 +162,7 @@ namespace SiemensProject
             vol.Field_of_activity = Console.ReadLine();
             Console.WriteLine("Hour Count");
             vol.HourCount = Convert.ToInt16(Console.ReadLine());
-            Console.WriteLine("Active? (true/false)");
+            Console.WriteLine("Active? (true/false)");//trebe facut pentru boolean
             vol.InActivity = Convert.ToBoolean(Console.ReadLine());
             Console.WriteLine("Occupation");
             vol.Occupation = Console.ReadLine();
@@ -134,13 +173,55 @@ namespace SiemensProject
             Console.WriteLine("Which days is he available");
             vol.WorkSchedule.Comments.Days = Console.ReadLine();
             Console.WriteLine("What hours is he available");
-            vol.WorkSchedule.Comments.TimeAvailability = Console.ReadLine();
-
-            AM DAT CU "* / CA SA NU TREBUIASCA SA BAG TOATE DATELE MEREU"*/
+            vol.WorkSchedule.Comments.TimeAvailability = Console.ReadLine();*/
 
             Console.WriteLine("Volunteer successfully added!");
 
             return vol;
+        }
+
+        internal static void ShowVolunteerbd(List<Volunteer> allvolunteers2)
+        {
+            string todaydate = DateTime.Today.ToString("dd-MM-yyyy");
+            string[] dates = todaydate.Split("-");
+            int Day = Convert.ToInt16(dates[0]);
+            int Month = Convert.ToInt16(dates[1]);
+            int Year = Convert.ToInt16(dates[2]);
+            Day = (Month-1) * 30 + Day;
+            int voldays;
+            
+            Console.WriteLine("The following Volunteers are going to have birthdays");
+            foreach (Volunteer vol in allvolunteers2)
+            { 
+                    voldays = (vol.birthdate.Month-1) * 30 + vol.birthdate.Day;
+                Console.WriteLine("Datadeazi: " + Day + " birthdays of vols: " + voldays);
+                if (Day < voldays && Day+7 >voldays)//mai trebe aici caz special cand este decembrie 20 - ianuarie 7
+                {
+                    Console.WriteLine(vol.Firstname + " " + vol.Lastname + " : " + vol.birthdate.Year + "." + vol.birthdate.Month + "." + vol.birthdate.Day);
+                }
+
+            }
+        }
+
+        internal static void ShowVolunteercontractexp(List<Volunteer> allvolunteers2)
+        {
+            string todaydate = DateTime.Today.ToString("dd-MM-yyyy");
+            string[] dates = todaydate.Split("-");
+            int Day = Convert.ToInt16(dates[0]);
+            int Month = Convert.ToInt16(dates[0]);
+            int Year = Convert.ToInt16(dates[0]);
+            Day = Year*365 + (Month - 1) * 30 + Day;
+            int voldays;
+            Console.WriteLine("The following Volunteers are going to have their contracts expired in the next 20 days!");
+            foreach (Volunteer vol in allvolunteers2)
+            {
+                voldays = Year*365 + (vol.birthdate.Month - 1 + vol.Contract.ContractPeriod) * 30 + vol.birthdate.Day;
+                if (Day < voldays && Day + 20 > voldays)
+                {
+                    Console.WriteLine(vol.Firstname + " " + vol.Lastname + " : " + vol.birthdate.Year + "." + vol.birthdate.Month + "." + vol.birthdate.Day);
+                }
+
+            }
         }
 
         internal static void Showallvolunteers(List<Volunteer> allvolunteers2)//Aici se afiseaza fiecare voluntar care este stocat in array

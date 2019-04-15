@@ -80,7 +80,7 @@ namespace SiemensProject
         public class Workschedule
         {
             public string HoursWeek { get; set; }
-            public Comments Comments { get; set; }
+            public Comments Comments = new Comments();
         }
 
         public class Comments

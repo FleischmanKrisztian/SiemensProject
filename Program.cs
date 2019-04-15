@@ -33,7 +33,9 @@ namespace SiemensProject
                 Console.WriteLine("Press 2 to Remove a person!");
                 Console.WriteLine("Press 3 to Edit a person!");
                 Console.WriteLine("Press 4 to Show Everyone!");
-                Console.WriteLine("Press 5 to Exit!");
+                Console.WriteLine("Press 5 to Show Upcoming birthdays!");
+                Console.WriteLine("Press 6 to Show Upcoming contract expirations!");
+                Console.WriteLine("Press 7 to Exit!");
 
                 Console.WriteLine("Please enter your choice!");
                 try
@@ -73,10 +75,21 @@ namespace SiemensProject
                                 Db.Showallvolunteers(allvolunteers2);
 
                                 break;
+
                             case 5:
+                                Db.ShowVolunteerbd(allvolunteers2);
+
+                                break;
+                            case 6:
+                                Db.ShowVolunteercontractexp(allvolunteers2);
+                                break;
+
+                            case 7:
+
                                 finished = true;
 
                                 break;
+
                             default:
                                 Console.WriteLine("Not a valid option!");
 

@@ -75,7 +75,7 @@ namespace SiemensProject
         public int Month { get; set; }
         public int Day { get; set; }
 
-    }
+        }
 
         public class Workschedule
         {

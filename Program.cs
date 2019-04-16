@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Json;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using System.Collections;
@@ -21,11 +22,32 @@ namespace SiemensProject
             bool finished = false;
             int choice;
             List<Volunteer> allvolunteers2 = new List<Volunteer>();
+            //DONE
+            //Intrebare daca Nar fi bine sa sterg characterul care cauzeaza problema
             string jsontext = File.ReadAllText(@"volunteer.json");
-            if (jsontext != "")
-            {
-                JsonConvert.PopulateObject(jsontext, allvolunteers2);//Daca Jsonul este empty da eroare, insa este necesar pentru a trece datele in array din json
-            }
+            bool success = false;
+            //while (success = true)
+            //{
+                try
+                {
+                    var tmpObj = JsonValue.Parse(jsontext);
+                    JsonConvert.PopulateObject(jsontext, allvolunteers2) ; //Daca Jsonul este empty da eroare, insa este necesar pentru a trece datele in array din json
+                    success = true;
+                }
+                catch (FormatException fex)
+                {
+                    //Invalid json format
+                    Console.WriteLine(fex);
+                    finished = true;
+                }
+                catch (Exception ex) //some other exception
+                {
+                    Console.WriteLine(ex.ToString());
+                    finished = true;
+                }
+            //}
+            
+               
 
             while (finished != true)
             {
@@ -45,33 +67,27 @@ namespace SiemensProject
                         switch (choice)
                         {
                             case 1:
-                                int x = Db.Idgetter(allvolunteers2);//cere numarul voluntarului care urmeaza sa fie modificat
-                                Volunteer vol = Db.AddVolunteerfromCmd(x);
-                                Db.AddVolunteer(vol, allvolunteers2);
+                                Volunteer vol = Db.AddVolunteerfromCmd();
+                                allvolunteers2.Add(vol);
+                                Db.SavetoJson(allvolunteers2);
 
                                 break;
 
                             case 2:
-                                if (allvolunteers2.Count() > 1)//ultimul voluntar nu poate fi sters ca da peste cap totul
-                                {
-                                    int y = Db.Selector(allvolunteers2);
-                                    allvolunteers2.RemoveAt(y);//metoda pre definita
-                                    Console.WriteLine("Volunteer Deleted");
-                                    Db.SavetoJson(allvolunteers2);//mereu daca modificam ceva in allvollunteers2 trebuie sa facem schimbarea si in json ca data viitoare sa continuam tot de aici
-                                }
-                                else
-                                {
-                                    Console.WriteLine("You cannot delete the last volunteer!");
-                                }
+                                int y = Db.Selector(allvolunteers2);
+                                allvolunteers2.RemoveAt(y);//metoda pre definita
+                                Console.WriteLine("Volunteer Deleted");
+                                Db.SavetoJson(allvolunteers2); //mereu daca modificam ceva in allvollunteers2 trebuie sa facem schimbarea si in json ca data viitoare sa continuam tot de aici
                                 break;
 
                             case 3:
                                 int z = Db.Selector(allvolunteers2);
-                                //Trebuie facut o metoda update
-
+                                Db.Edit(allvolunteers2, z);
+                                Db.SavetoJson(allvolunteers2);
                                 break;
 
                             case 4:
+                                //DE TERMINAT
                                 Db.Showallvolunteers(allvolunteers2);
 
                                 break;
@@ -85,7 +101,6 @@ namespace SiemensProject
                                 break;
 
                             case 7:
-
                                 finished = true;
 
                                 break;

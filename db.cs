@@ -1,4 +1,5 @@
-﻿
+﻿namespace SiemensProject
+{ 
 using System;
 using System.IO;
 using System.Linq;
@@ -8,29 +9,8 @@ using Newtonsoft.Json;
 using System.Collections;
 using MongoDB.Driver;
 
-namespace SiemensProject
-{
     class Db
     {
-        public static void AddVolunteer(Volunteer vol,List<Volunteer> allvolunteers2)//aici se appendeaza in json noul voluntar, stiu ca a zis ca trebe sa facem fara [] dar alta cale pur si simplu nu am gasit
-        {
-            string entry = JsonConvert.SerializeObject(vol);
-            allvolunteers2.Add(vol);
-            string filepath = @"volunteer.json";
-            string yas = File.ReadAllText(filepath);
-            yas = yas.TrimEnd(new char[] { ']' });
-            File.WriteAllText(filepath, yas);
-            if (vol.id == 1)
-            {
-                File.AppendAllText(@"volunteer.json", "[");
-            }
-            else
-            {
-                File.AppendAllText(@"volunteer.json", ",");
-            }
-            File.AppendAllText(@"volunteer.json", entry);
-            File.AppendAllText(@"volunteer.json", "]");
-        }
 
         public static void Showalljson()//Nu Functioneza nu stiu de ce dar oricum nu e nevoie de el daca merge show all volunteers
         {
@@ -56,10 +36,9 @@ namespace SiemensProject
             return nrofvols;
         }
 
-        internal static Volunteer AddVolunteerfromCmd(int x)//Aici se creaza un nou voluntar de la tastatura
+        internal static Volunteer AddVolunteerfromCmd()//Aici se creaza un nou voluntar de la tastatura
         {
             Volunteer vol = new Volunteer();
-            vol.id = x + 1;
             Console.WriteLine("You have chosen to add a Volunteer");
             Console.WriteLine("Please enter the persons:");
             Console.WriteLine("Firstname: ");
@@ -180,22 +159,30 @@ namespace SiemensProject
             return vol;
         }
 
-        internal static void ShowVolunteerbd(List<Volunteer> allvolunteers2)
+        internal static void Edit(List<Volunteer> allvolunteers2, int z)
+        {
+            
+        }//Aici Mai Trebuie de lucrat, dar fa tu sa nu zici ca fac eu tot si este si destul de greu
+
+        internal static void ShowVolunteerbd(List<Volunteer> allvolunteers2)//Este Facut Blana pentru toate cazurile si din ianuarie si la sfarsitul lui decembrie
         {
             string todaydate = DateTime.Today.ToString("dd-MM-yyyy");
             string[] dates = todaydate.Split("-");
             int Day = Convert.ToInt16(dates[0]);
             int Month = Convert.ToInt16(dates[1]);
             int Year = Convert.ToInt16(dates[2]);
+            /*Day = 28;
+            Month = 12;
+            Year = 2019;*/
             Day = (Month-1) * 30 + Day;
             int voldays;
             
             Console.WriteLine("The following Volunteers are going to have birthdays");
             foreach (Volunteer vol in allvolunteers2)
-            { 
-                    voldays = (vol.birthdate.Month-1) * 30 + vol.birthdate.Day;
-                Console.WriteLine("Datadeazi: " + Day + " birthdays of vols: " + voldays);
-                if (Day < voldays && Day+7 >voldays)//mai trebe aici caz special cand este decembrie 20 - ianuarie 7
+            {  
+                voldays = (vol.birthdate.Month-1) * 30 + vol.birthdate.Day;
+
+                if ((Day <= voldays && Day+7 >voldays) || (Day>354 && 362-Day>=voldays))//mai trebe aici caz special cand este decembrie 20 - ianuarie 7
                 {
                     Console.WriteLine(vol.Firstname + " " + vol.Lastname + " : " + vol.birthdate.Year + "." + vol.birthdate.Month + "." + vol.birthdate.Day);
                 }
@@ -208,23 +195,46 @@ namespace SiemensProject
             string todaydate = DateTime.Today.ToString("dd-MM-yyyy");
             string[] dates = todaydate.Split("-");
             int Day = Convert.ToInt16(dates[0]);
-            int Month = Convert.ToInt16(dates[0]);
-            int Year = Convert.ToInt16(dates[0]);
-            Day = Year*365 + (Month - 1) * 30 + Day;
-            int voldays;
-            Console.WriteLine("The following Volunteers are going to have their contracts expired in the next 20 days!");
+            int Month = Convert.ToInt16(dates[1]);
+            int Year = Convert.ToInt16(dates[2]);
+            Day = (Year - 2001) * 365 + (Month - 1) * 30 + Day;
+            Console.WriteLine(Day);
+            int volcontract;
+            Console.WriteLine("The following Volunteers are going to have their contracts expire/or had expired in an interval of 30 days");
             foreach (Volunteer vol in allvolunteers2)
             {
-                voldays = Year*365 + (vol.birthdate.Month - 1 + vol.Contract.ContractPeriod) * 30 + vol.birthdate.Day;
-                if (Day < voldays && Day + 20 > voldays)
+                volcontract = (vol.registrationday.Year - 2001) * 365 + (vol.registrationday.Month - 1 + vol.Contract.ContractPeriod) * 30 + vol.birthdate.Day;
+                if (vol.registrationday.Month + vol.Contract.ContractPeriod > 12)
+                    volcontract = volcontract + 30;
+
+                if (Day <= volcontract && Day + 30 > volcontract)
                 {
-                    Console.WriteLine(vol.Firstname + " " + vol.Lastname + " : " + vol.birthdate.Year + "." + vol.birthdate.Month + "." + vol.birthdate.Day);
+                    if (vol.registrationday.Month+vol.Contract.ContractPeriod>12)
+                    {
+                        Console.WriteLine("EXPIRING SOON!!!" + vol.Firstname + " " + vol.Lastname + " : " + (vol.registrationday.Year+1) + "." + (vol.registrationday.Month + vol.Contract.ContractPeriod-12) + "." + vol.registrationday.Day);
+                    }
+                    else
+                    {
+                        Console.WriteLine("EXPIRING SOON!!!" + vol.Firstname + " " + vol.Lastname + " : " + vol.registrationday.Year + "." + (vol.registrationday.Month+vol.Contract.ContractPeriod) + "." + vol.registrationday.Day);
+                    }
+                    
+                }
+                else if(Day > volcontract && Day -30 < volcontract)
+                {
+                    if (vol.registrationday.Month + vol.Contract.ContractPeriod > 12)
+                    {
+                        Console.WriteLine("EXPIRED RECENTLY!!" + vol.Firstname + " " + vol.Lastname + " : " + (vol.registrationday.Year + 1) + "." + (vol.registrationday.Month+vol.Contract.ContractPeriod - 12) + "." + vol.registrationday.Day);
+                    }
+                    else
+                    {
+                        Console.WriteLine("EXPIRED RECENTLY!!" + vol.Firstname + " " + vol.Lastname + " : " + vol.registrationday.Year + "." + (vol.registrationday.Month + vol.Contract.ContractPeriod) + "." + vol.registrationday.Day);
+                    } 
                 }
 
             }
-        }
+        }//Este facut si acesta
 
-        internal static void Showallvolunteers(List<Volunteer> allvolunteers2)//Aici se afiseaza fiecare voluntar care este stocat in array
+        internal static void Showallvolunteers(List<Volunteer> allvolunteers2)//TREBUIE TERMINAT daca ai chef fa tu cum crezi ca arata bine
         {
             foreach (Volunteer vol in allvolunteers2)
             {
@@ -232,7 +242,7 @@ namespace SiemensProject
                 Console.WriteLine("Firstname: " + vol.Firstname);
                 Console.WriteLine("Lastname: " + vol.Lastname);
                 Console.WriteLine("Age: " + vol.Age);
-                Console.WriteLine("Address: " + vol.id);
+                Console.WriteLine("Address: " + vol.Address.Country);
                 Console.WriteLine("Id: " + vol.id);
                 Console.WriteLine("Id: " + vol.id);
                 Console.WriteLine("Id: " + vol.id);
@@ -248,8 +258,26 @@ namespace SiemensProject
 
         internal static void SavetoJson(List<Volunteer> allvolunteers2)//aici trece toate datele din arrayul allvollunteers in fisierul Json
         {
+            
+            int countid = 1;
+            foreach (Volunteer vol in allvolunteers2)
+            {
+                vol.id = countid;
+                countid++;
+            }
             string tojson = JsonConvert.SerializeObject(allvolunteers2);
-            File.WriteAllText("volunteer.json", tojson);
+            if(tojson[0]=='[')
+            {
+                File.WriteAllText("volunteer.json", tojson);
+            }
+            else
+            {
+                File.WriteAllText("volunteer.json", "[");
+                File.AppendAllText("volunteer.json", tojson);
+                File.AppendAllText("volunteer.json", "]");
+            }
+            
+
         }
 
         internal static int Selector(List<Volunteer> allvolunteers2)//aici selectezi care persoana vei modifica mai incolo
